@@ -4,7 +4,7 @@ interface DrawioEditorProps {
   xml: string | null;
 }
 
-const DRAWIO_URL = 'https://embed.diagrams.net/?embed=1&吸着=0&noSave=0&proto=json';
+const DRAWIO_URL = 'https://embed.diagrams.net/?embed=1&noSave=1&proto=json';
 
 export function DrawioEditor({ xml }: DrawioEditorProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);

@@ -6,14 +6,14 @@ export default defineConfig({
   clearScreen: false,
   server: {
     port: 1420,
-    strictPort: true,
-    watch: {
-      ignored: ['**/src-tauri/**'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
     },
   },
   build: {
     target: ['es2021', 'chrome100', 'safari13'],
-    minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
-    sourcemap: !!process.env.TAURI_DEBUG,
   },
 });

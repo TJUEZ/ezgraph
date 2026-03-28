@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api/core';
 import { useState, useCallback } from 'react';
 
 export interface LLMConfig {
@@ -14,6 +13,8 @@ interface UseLLMReturn {
   error: string | null;
 }
 
+const API_URL = 'http://localhost:3001/api/generate';
+
 export function useLLM(config: LLMConfig): UseLLMReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,17 +24,28 @@ export function useLLM(config: LLMConfig): UseLLMReturn {
     setError(null);
 
     try {
-      const result = await invoke<string>('generate_drawio_xml_cmd', {
-        request: {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          provider: config.provider,
+          apiKey: config.apiKey,
+          model: config.model,
+          baseUrl: config.baseUrl || undefined,
           context,
           prompt,
-          provider: config.provider,
-          api_key: config.apiKey,
-          model: config.model,
-          base_url: config.baseUrl || null,
-        },
+        }),
       });
-      return result;
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Generation failed');
+      }
+
+      const data = await response.json();
+      return data.xml;
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e);
       setError(errorMsg);
